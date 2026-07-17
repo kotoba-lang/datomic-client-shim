@@ -1,0 +1,8 @@
+{
+  "name": "datomic-client-shim",
+  "private": true,
+  "description": "datomic-client-shim -- transitive npm dep of kotoba-lang/arrangement (materialize target via kotobase-query's bridge, via multiformats.core's @noble/hashes/sha2.js use) needed to load arrangement.core under nbb. See kotobase-query's own package.json note: io-multiformats' package.json also declares a \"hashes\": \"2.0.1\" dependency that is vestigial/broken upstream and deliberately not mirrored here.",
+  "dependencies": {
+    "@noble/hashes": "^1.4.0"
+  }
+}
