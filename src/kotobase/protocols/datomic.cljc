@@ -100,7 +100,7 @@
   though it does not mutate `store`. Failed requests (parse error, missing
   `:query`, disallowed method/path) are NOT audited — they never reached
   `kotobase.query.bridge` at all."
-  (:require [kotobase.protocols.http :as http]
+  (:require [kotobase.protocols.datomic.http :as http]
             [kotobase.query.bridge :as bridge]
             [kotobase.store :as st]
             #?(:clj [clojure.edn :as edn]
@@ -141,7 +141,7 @@
   "Datomic Client `d/q`-shaped handler. See ns docstring for the full
   request/response shape and the exact `:args` semantics deviation from
   real Datomic. `ctx` per ns docstring; `req` is
-  `kotobase.protocols.http`-shaped (`{:method :post :path \"/api/query\"
+  `kotobase.protocols.datomic.http`-shaped (`{:method :post :path \"/api/query\"
   :body <edn-string>}`).
 
   Throws `ex-info` immediately (does not return an HTTP response) if `ctx`
