@@ -37,11 +37,12 @@ q/qseq, pull, datoms/seek/rseek/index-range/index-pull, db-stats, tx-range,
 sync, transact and speculative with/with-db. JVM remote calls use the standard
 HTTP client; embedded/test hosts may inject `:request-fn`.
 
-The local engine executes speculative `with`. The hosted authoritative backend
-currently reserves `/api/with` and returns an explicit `501`; remote callers
-should use `transact` or keep speculative evaluation local until that backend
-capability lands. Namespace parity is not a claim of proprietary wire,
-catalog/admin, peer API, or complete schema/transaction-function parity.
+Both local and hosted engines execute speculative `with`; the hosted db-after
+is an immutable portable token carrying its speculative transaction and does
+not advance the durable graph head. `administer-system` implements the public
+`:upgrade-schema` action and reports Kotobase's intrinsic base schema as
+current. Namespace parity is not a claim of Cognitect's proprietary wire or of
+the embedded Peer API.
 
 Do not put this shim and Cognitect's `com.datomic/client` on the same
 classpath: both intentionally provide `datomic.client.api`.
