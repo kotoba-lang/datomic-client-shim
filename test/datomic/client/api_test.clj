@@ -24,4 +24,8 @@
     (is (some? (d/as-of snapshot (:t snapshot))))
     (is (contains? (d/with (d/with-db conn)
                             {:tx-data [{:db/id "bob" :person/name "Bob"}]})
-                   :db-after))))
+                   :db-after))
+    (is (= :current
+           (:status (d/administer-system client
+                                         {:action :upgrade-schema
+                                          :db-name "people"}))))))
