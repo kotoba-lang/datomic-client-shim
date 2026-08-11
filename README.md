@@ -1,19 +1,14 @@
 # datomic-client-shim
 
-[![CI](https://github.com/kotoba-lang/datomic-client-shim/actions/workflows/ci.yml/badge.svg)](https://github.com/kotoba-lang/datomic-client-shim/actions/workflows/ci.yml)
-
 **This is SHAPE-compatible with the [Datomic Client API](https://docs.datomic.com/client-api/datomic.client.api.html)'s
-`d/q` request/response shape — it is explicitly, deliberately NOT
+published namespace and request/response shapes — it is explicitly NOT
 wire-compatible with proprietary Datomic, and it is not affiliated with or
 endorsed by Datomic/Nubank/Cognitect.** There is no single open Datomic wire
 protocol to conform to (the Client API is HTTP+transit but not an
 independently-specified standard; the Peer/transactor protocol is
 proprietary/undocumented) — so this repo does not, and could not honestly,
-claim wire conformance. It borrows the request/response *shape* only
-(`{:query <edn-datalog> :args [...]}` in, a result-set `#{[...] ...}` out)
-because that shape is a reasonable, familiar `:find`/`:where` Datalog
-convention. **A real Datomic client cannot point at this server and expect
-it to work.** This is why the repo is named plainly (`datomic-client-shim`,
+claim wire conformance. **A stock `com.datomic/client-cloud` binary cannot
+point at this server.** This is why the repo is named plainly (`datomic-client-shim`,
 no `org-<body>-<spec>` reverse-domain prefix) rather than claiming spec
 conformance the way `kotoba-lang/org-ietf-webdav` or
 `kotoba-lang/org-oci-distribution` do — see ADR-2607172300 in
@@ -21,7 +16,31 @@ conformance the way `kotoba-lang/org-ietf-webdav` or
 ADR-2607060100 used to exclude `json`/`dag-cbor`/`openapi` from
 reverse-domain naming.
 
-## What this actually is
+## Client library
+
+`datomic.client.api` now exports the same 24 public var names as Datomic Client
+1.0.146, backed by `kotoba-lang/kotobase-engine`:
+
+```clojure
+(require '[datomic.client.api :as d])
+
+(def client (d/client {:server-type :kotobase
+                       :endpoint "https://datomic.kotobase.net"
+                       :token #(System/getenv "KOTOBASE_TOKEN")}))
+(def conn (d/connect client {:db-name "production"}))
+(def db (d/as-of (d/db conn) 42))
+(d/q '[:find ?e :where [?e :person/name _]] db)
+```
+
+The shim covers lifecycle, immutable database values, as-of/since/history,
+q/qseq, pull, datoms/seek/rseek/index-range/index-pull, db-stats, tx-range,
+sync, transact and speculative with/with-db. JVM remote calls use the standard
+HTTP client; embedded/test hosts may inject `:request-fn`.
+
+Do not put this shim and Cognitect's `com.datomic/client` on the same
+classpath: both intentionally provide `datomic.client.api`.
+
+## Legacy embedded query handler
 
 An HTTP+edn query surface over [`kotobase`](https://github.com/kotoba-lang/kotobase),
 built on [`kotoba-lang/kotobase-query`](https://github.com/kotoba-lang/kotobase-query)
@@ -151,7 +170,7 @@ lives in its own repo (not inside `kotobase-protocols`) — kept consistent
 with the family for a possible future re-homing, same rationale
 `org-ietf-webdav`'s README documents for `kotobase.protocols.webdav`.
 
-## Scope guards (read before extending)
+## Legacy-handler scope guards
 
 - **Query only, no writes.** No transact/connect endpoint, no schema
   mutation. If a write surface over this data is ever needed, that is a
@@ -161,9 +180,10 @@ with the family for a possible future re-homing, same rationale
   no caching, no incremental indexing. Fine for small/test-scale query
   volume; a documented, accepted limitation, not an oversight. See
   `kotobase-query`'s own README for the full explanation.
-- **No transact/db/history/pull endpoints** — only `d/q`-shaped queries.
-  Datomic's `pull` API, `d/history`, `d/as-of`/`d/since` time-travel, and
-  `d/transact` have no equivalent here and are not planned as of v0.1.
+- **The legacy `/api/query` handler has no transact/db/history/pull endpoints.**
+  Those operations live in the `datomic.client.api` client and the canonical
+  `https://datomic.kotobase.net/api/*` gateway; they are not duplicated in the
+  embedded document-store handler.
 - **`:args` semantics diverge from real Datomic** — see the dedicated
   section above. This is the single most important thing to get right if
   you are porting client code that expects real Datomic `:args` shape.
