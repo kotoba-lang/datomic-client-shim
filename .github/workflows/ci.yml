@@ -17,43 +17,73 @@ jobs:
           path: .deps/kotobase
       - uses: actions/checkout@v4
         with:
-          repository: kotoba-lang/kotobase-query
+          repository: kotoba-lang/ayatori
           # Same pin as deps.edn — keep the two in lockstep.
-          ref: 25da85adf8a4c2b4108b7c3b8af4f7c46d1ef310
-          path: .deps/kotobase-query
+          ref: d50ff2529daf428a5e3b8e43d1ca8ec0d6239c29
+          path: .deps/ayatori
       - uses: actions/checkout@v4
         with:
           repository: kotoba-lang/arrangement
-          # Same pin as kotobase-query's own deps.edn (transitive).
-          ref: 591ade4db1b324fc4ec83de932888b141bd69e09
+          # Same pin as ayatori's own deps.edn (transitive).
+          ref: 9c9f45d4cd043873cd5c5ea65fa3af8a8ead5e6d
           path: .deps/arrangement
       - uses: actions/checkout@v4
         with:
           repository: kotoba-lang/prolly-tree
           # Same pin as arrangement's own deps.edn (transitive).
-          ref: 2a5ba48a2eb11cc73b549ee75f5c1b71cc223566
+          ref: 644753aec57e12c9588786d46751b1503a5fd6f0
           path: .deps/prolly-tree
       - uses: actions/checkout@v4
         with:
           repository: kotoba-lang/io-ipld
           # Same pin as arrangement's own deps.edn (transitive).
-          ref: 4591764514239c4777f227a7a56d46c901e2a4a0
+          ref: f99bf27d58a75bb8cf6ddfd2d57a0aaac9c824ac
           path: .deps/io-ipld
       - uses: actions/checkout@v4
         with:
           repository: kotoba-lang/io-multiformats
-          # Same pin as io-ipld's own deps.edn (transitive).
-          ref: eec3ee85c458ea830be94518b9a42f4a8f1aee40
+          # Noble-free pin from arrangement 9c9f45d (overrides io-ipld's older pin).
+          ref: 561fe7dfada3db852b127f06d41750dabd3cead9
           path: .deps/io-multiformats
+      - uses: actions/checkout@v4
+        with:
+          repository: kotoba-lang/org-nist-sha2
+          # Same pin as io-multiformats' own deps.edn (transitive).
+          ref: e7c1b250adf3291ef99424fa85d8e7381cb086fb
+          path: .deps/org-nist-sha2
       - uses: actions/checkout@v4
         with:
           repository: kotoba-lang/org-ietf-cbor
           # Same pin as io-ipld's own deps.edn (transitive).
-          ref: de18ad29102f9df150e214d756de4719c3c00d7a
+          ref: 1dacfc40c77573e3f4553093de0e0000f18a7c08
           path: .deps/org-ietf-cbor
+      - uses: actions/checkout@v4
+        with:
+          repository: kotoba-lang/dev-protobuf
+          # Same pin as io-ipld's own deps.edn (transitive).
+          ref: cfd0b29997abbcae918ec5e90fddd621dbfb97b6
+          path: .deps/dev-protobuf
+      - uses: actions/checkout@v4
+        with:
+          repository: kotoba-lang/datom-source
+          # Same pin as arrangement's own deps.edn (transitive).
+          ref: 19dc98ad5272da6648c27eada8e1ed76cac85d8d
+          path: .deps/datom-source
+      - uses: actions/checkout@v4
+        with:
+          repository: kotoba-lang/datalog
+          # Same pin as arrangement's own deps.edn (transitive).
+          ref: d18513af533917539c56435de6fb1426738da31a
+          path: .deps/datalog
+      - uses: actions/checkout@v4
+        with:
+          repository: kotoba-lang/io-ipni-specs
+          # Same pin as ayatori's own deps.edn (transitive).
+          ref: 2c1559e2703bf41076188539c7086255b0d3c540
+          path: .deps/io-ipni-specs
       - uses: actions/setup-node@v4
         with:
           node-version: 22
       - run: npm install --global nbb
       - run: npm install
-      - run: nbb --classpath "src:test:.deps/kotobase/src:.deps/kotobase-query/src:.deps/arrangement/src:.deps/prolly-tree/src:.deps/io-ipld/src:.deps/io-multiformats/src:.deps/org-ietf-cbor/src" bin/run_tests.cljs
+      - run: nbb --classpath "src:test:.deps/kotobase/src:.deps/ayatori/src:.deps/arrangement/src:.deps/prolly-tree/src:.deps/io-ipld/src:.deps/io-multiformats/src:.deps/org-nist-sha2/src:.deps/org-ietf-cbor/src:.deps/dev-protobuf/src:.deps/datom-source/src:.deps/datalog/src:.deps/io-ipni-specs/src" bin/run_tests.cljs
